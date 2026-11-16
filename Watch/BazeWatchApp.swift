@@ -58,6 +58,7 @@ struct Reply: Decodable {
 final class Chat: ObservableObject {
     @AppStorage("baseURL") var baseURL = "https://api.baze.co/v1/gateway"
     @AppStorage("model") var model = "gpt-6.1-sol"
+    @AppStorage("autoSpeak") var autoSpeak = true
     @Published var prompt = ""
     @Published var answer = ""
     @Published var status = ""
@@ -91,7 +92,7 @@ final class Chat: ObservableObject {
             guard let content = reply.choices.first?.message.content, !content.isEmpty else { status = "답변이 비어 있어."; return }
             answer = content
             status = ""
-            speak()
+            if autoSpeak { speak() }
         } catch {
             status = "연결 또는 응답 처리에 실패했어. 네트워크와 API 설정을 확인해줘."
         }
@@ -142,6 +143,7 @@ struct SettingsView: View {
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
                 TextField("모델 이름", text: $chat.model)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
+                Toggle("답변 자동 읽기", isOn: $chat.autoSpeak)
                 SecureField("API 키", text: $key)
                     .textInputAutocapitalization(.never).autocorrectionDisabled()
                 Button("API 키 저장") {
